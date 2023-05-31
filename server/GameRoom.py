@@ -10,9 +10,12 @@ class GameRoom:
         self.is_game_over = False
     
     def generate_id(self) -> None:
-        now = datetime.now()
+        now = datetime.datetime.now()
         id = now.strftime("%d%m%Y%H%M%S")
         return id
+    
+    def get_id(self) -> str:
+        return self.id
 
     def add_player(self, player) -> bool:
         if len(self.players) < 2:
@@ -25,7 +28,17 @@ class GameRoom:
         if player in self.players:
             self.players.remove(player)
         
+    def get_players(self) -> List[socket.socket]:
+        players = ""
+        for player in self.players:
+            players += f"{player.getsockname()[0]}\n"
+
+    def is_game_ready(self) -> bool:
+        if self.players == 2:
+            return True
+        else:
+            return False
+
     def destroy_room(self) -> None:
         self.players = []
         self.is_game_over = True
-

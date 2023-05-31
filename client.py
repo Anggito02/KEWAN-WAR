@@ -5,60 +5,42 @@ import os
 # inisialisasi direktori client
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# inisialisasi koneksi server
-server_address = ('localhost', 12345)
+class Client:
+    def __init__(self, SERVER_HOST, SERVER_PORT) -> None:
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_address = (SERVER_HOST, SERVER_PORT)
 
-# inisialisasi socket TCP
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(server_address)
+        self.username = ""
+        self.kewan = {}
 
-# kirim data ke server
-try:
-    while True:
-        # kirim hello server
-        hello_msg = "Hello Server!\n" + client_socket.getsockname()[0] + " : " + str(client_socket.getsockname()[1])
-        client_socket.send(hello_msg.encode('utf-8'))
+    def get_client_host(self):
+        return self.client_host
+    
+    def get_client_port(self):
+        return self.client_port
 
-        # terima game start dari server
-        welcome_game_msg = client_socket.recv(1024).decode('utf-8')
-        print(welcome_game_msg)
+    def connect(self):
+        self.client_socket.connect(self.server_address)
 
-        # terima list room dari server
+    def client_send(self, msg):
+        self.client_socket.send(msg.encode('utf-8'))
 
-        # pilih room
+    def client_receive(self):
+        msg = self.client_socket.recv(1024).decode('utf-8')
+        return msg
+    
+    def set_username(self, username):
+        self.username = username
 
-        # kirim pilihan room ke server
+    def get_username(self) -> str:
+        return self.username
+    
+    def set_kewan(self, kewan):
+        self.kewan = kewan
 
-        # terima game start dari server
-        game_start_msg = client_socket.recv(1024).decode('utf-8')
-        print(game_start_msg)
+    def get_kewan(self) -> dict:
+        return self.kewan
 
-        # pilih kewan
-        while True:
-            # minta nama kewan pada player
-            kewan_nama = input("Pilih kewan (Masukkan nama):\
-                \n1. Trippi\
-                \n2. SoniLandak\
-                \n3. Burhan\
-                \n4. Cython\
-                \n5. Bhaanther\n")
-            
-            # kirim nama kewan ke server
-            client_socket.send(kewan_nama.encode('utf-8'))
-
-            # terima pesan dari server
-            kewan_info = client_socket.recv(1024).decode('utf-8')
-            
-            # kewan tidak ditemukan
-            if kewan_info == "Kewan tidak ditemukan!\n":
-                print(kewan_info)
-                continue
-            else:
-                break
-
-        # print info kewan
-        print(kewan_info)
-
-except KeyboardInterrupt:
-    client_socket.close()
-    sys.exit(0)
+if __name__ == "__main__":
+    client = Client('127.0.0.1', 12345)
+    client.connect()

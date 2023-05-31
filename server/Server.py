@@ -14,12 +14,17 @@ PORT = ''
 KEWAN_DATA = {}
 GAME_ROOMS: List[GameRoom] = []
 
+# inisialisasi base directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 '''
     GAME CONFIGURATION
 '''
 def get_kewan():
-    with open('../config/character.txt', 'r') as f:
+    with open(os.path.join(BASE_DIR, "..", "config", "character.txt"), 'r') as f:
         data = f.read()
+
+    global KEWAN_DATA
     KEWAN_DATA = ast.literal_eval(data)
 
 '''
@@ -30,11 +35,10 @@ def get_kewan():
     SERVER CONFIGURATION
 '''
 def get_config():
-    # inisialisasi base directory
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    global HOST, PORT
 
     # gunakan konfigurasi yang sudah dibuat
-    CONFIG_FILE = open(BASE_DIR + "../config/server.conf", "r")
+    CONFIG_FILE = open(os.path.join(BASE_DIR, "..", "config", "server.conf"), "r")
 
     # save config to variable
     for line in CONFIG_FILE:
@@ -55,12 +59,12 @@ def get_config():
 '''
 
 def server_connection():
-    server_addreass = (HOST, PORT)
+    server_address = (HOST, PORT)
 
     # inisialisasi socket TCP
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(server_addreass)
+    server_socket.bind(server_address)
     server_socket.listen(10)
 
     # List untuk menyimpan socket yang terhubung
@@ -84,9 +88,19 @@ def server_receive(socket_r):
 '''
 def handle_client(client_socket, room: GameRoom):
     room.add_player(client_socket)
-    print("Room: ", room.id)
-    print("Player: ", room.players)
+    
+    print("Room: ", room.get_id())
+    print("Player: ")
+    print(room.get_players())
 
+    if not room.is_game_ready():
+        print("Waiting for player...")
+
+    while True:
+        if room.is_game_ready():
+            break
+
+    print("Game is ready!")
 '''
     ====================
 '''
@@ -100,13 +114,14 @@ if __name__ == "__main__":
 
     # inisialisasi config
     get_config()
-
+    
     # inisialisasi server connection
     server_socket, input_socket = server_connection()
 
     # lakukan pengecekan koneksi dengan klien
     try:
         while True:
+            # lakukan select pada input socket
             socket_ready, _, _ = select.select(input_socket, [], [])
 
             for sock_r in socket_ready:
