@@ -9,7 +9,7 @@ import ast
 '''
     GAME CONFIGURATION
 '''
-with open('character.txt', 'r') as f:
+with open('../config/character.txt', 'r') as f:
     data = f.read()
 
 # save kewan dictionary
@@ -22,7 +22,7 @@ KEWAN = ast.literal_eval(data)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # gunakan konfigurasi yang sudah dibuat
-CONFIG_FILE = open(BASE_DIR + "/server.conf", "r")
+CONFIG_FILE = open(os.path.join(BASE_DIR, "..", "config", "server.conf"), "r")
 
 # save config to variable
 for line in CONFIG_FILE:
