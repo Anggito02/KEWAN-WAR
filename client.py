@@ -42,14 +42,35 @@ class Client:
         return self.kewan
 
 if __name__ == "__main__":
+    # Player Info
+    username = input("Masukkan username: ")
+
     client = Client('127.0.0.1', 12345)
     client.connect()
 
     try:
         while True:
+            # send username info
+            client.client_send(username)
+
             # get welcome message
             msg = client.client_receive()
             print(msg)
+
+            # get room info / game start
+            msg = client.client_receive()
+            if msg == "Waiting for player...":
+                # get game start if waiting
+                msg = client.client_receive()
+                print(msg)
+
+            # get game start message
+            elif msg == "======== Game is starting! ========\n\n":
+                print(msg)
+
+            # get list kewan
+            msg = client.client_receive()
+            input(msg)
     
     except KeyboardInterrupt:
         client.client_socket.close()

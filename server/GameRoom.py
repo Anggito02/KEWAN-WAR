@@ -8,6 +8,8 @@ class GameRoom:
         self.players: List[socket.socket] = []
         self.id = self.generate_id()
         self.is_game_over = False
+
+        self.username = ""
     
     def generate_id(self) -> None:
         now = datetime.datetime.now()

@@ -86,7 +86,12 @@ def server_receive(socket_r):
 def handle_client(client_socket, room: GameRoom):
     if room.add_player(client_socket):
         print("Player added!")
-        server_send(client_socket, "Player added!")
+
+        # get client username
+        username = server_receive(client_socket)
+
+        # send welcome message
+        server_send(client_socket, f"Welcome, {username}!")
     else:
         print("Player already exists!")
         server_send(client_socket, "Player already exists!")
@@ -95,6 +100,7 @@ def handle_client(client_socket, room: GameRoom):
     print("Player: ")
     print(room.get_players())
 
+    ''' ROOM WAITING '''
     if not room.is_game_ready():
         print("Waiting for player...")
         server_send(client_socket, "Waiting for player...")
@@ -103,8 +109,21 @@ def handle_client(client_socket, room: GameRoom):
         if room.is_game_ready():
             break
 
-    print("Game is ready!")
-    server_send(client_socket, "Game is ready!")
+    print("Game is starting!")
+    server_send(client_socket, "======== Game is starting! ========\n")
+
+    ''' KEWAN SELECTION '''
+    # send kewan selection
+    kewan_selection_format = f"Pilih Kewanmu!\n"
+
+    iter = 1
+    for kewan in list(KEWAN_DATA.keys()):
+        kewan_selection_format += str(iter) + ". " + kewan + '\n'
+        iter = iter + 1
+
+    kewan_selection_format += '\n\nMasukkan nama kewan: '
+
+    server_send(client_socket, kewan_selection_format)
 '''
     ====================
 '''
