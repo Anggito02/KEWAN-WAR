@@ -67,10 +67,7 @@ def server_connection():
     server_socket.bind(server_address)
     server_socket.listen(10)
 
-    # List untuk menyimpan socket yang terhubung
-    input_socket = [server_socket]
-
-    return server_socket, input_socket
+    return server_socket
 
 def server_send(socket_s, msg):
     socket_s.send(msg.encode("utf-8"))
@@ -87,7 +84,12 @@ def server_receive(socket_r):
     GAME LOGIC
 '''
 def handle_client(client_socket, room: GameRoom):
-    room.add_player(client_socket)
+    if room.add_player(client_socket):
+        print("Player added!")
+        server_send(client_socket, "Player added!")
+    else:
+        print("Player already exists!")
+        server_send(client_socket, "Player already exists!")
     
     print("Room: ", room.get_id())
     print("Player: ")
@@ -95,12 +97,14 @@ def handle_client(client_socket, room: GameRoom):
 
     if not room.is_game_ready():
         print("Waiting for player...")
+        server_send(client_socket, "Waiting for player...")
 
     while True:
         if room.is_game_ready():
             break
 
     print("Game is ready!")
+    server_send(client_socket, "Game is ready!")
 '''
     ====================
 '''
@@ -116,31 +120,21 @@ if __name__ == "__main__":
     get_config()
     
     # inisialisasi server connection
-    server_socket, input_socket = server_connection()
+    server_socket = server_connection()
 
     # lakukan pengecekan koneksi dengan klien
     try:
         while True:
-            # lakukan select pada input socket
-            socket_ready, _, _ = select.select(input_socket, [], [])
+            client_socket, client_address = server_socket.accept()
+            if len(GAME_ROOMS) == 0 or len(GAME_ROOMS[-1].players) == 2:
+                new_room = GameRoom()
+                GAME_ROOMS.append(new_room)
+            else:
+                new_room = GAME_ROOMS[-1]
 
-            for sock_r in socket_ready:
-                # jika socket merukapan server socket, maka terima koneksi baru
-                if sock_r == server_socket:
-                    client_socket, client_address = server_socket.accept()
-                    input_socket.append(client_socket)
-
-                # jika bukan server socket, maka terima pesan dari klien
-                else:
-                    if len(GAME_ROOMS) == 0 or len(GAME_ROOMS[-1].players) == 2:
-                        new_room = GameRoom()
-                        GAME_ROOMS.append(new_room)
-                    else:
-                        new_room = GAME_ROOMS[-1]
-
-                    # start thread
-                    client_thread = threading.Thread(target=handle_client, args=(sock_r, new_room))
-                    client_thread.start()
+            # start thread
+            client_thread = threading.Thread(target=handle_client, args=(client_socket, new_room))
+            client_thread.start()
     
     except KeyboardInterrupt:
         server_socket.close()

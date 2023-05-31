@@ -44,3 +44,13 @@ class Client:
 if __name__ == "__main__":
     client = Client('127.0.0.1', 12345)
     client.connect()
+
+    try:
+        while True:
+            # get welcome message
+            msg = client.client_receive()
+            print(msg)
+    
+    except KeyboardInterrupt:
+        client.client_socket.close()
+        sys.exit(0)

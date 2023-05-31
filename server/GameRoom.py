@@ -28,13 +28,14 @@ class GameRoom:
         if player in self.players:
             self.players.remove(player)
         
-    def get_players(self) -> List[socket.socket]:
+    def get_players(self) -> str:
         players = ""
         for player in self.players:
-            players += f"{player.getsockname()[0]}\n"
+            players += f"{player.getpeername()[0]} {player.getpeername()[1]}\n"
+        return players
 
     def is_game_ready(self) -> bool:
-        if self.players == 2:
+        if len(self.players) == 2:
             return True
         else:
             return False
