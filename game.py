@@ -1,5 +1,5 @@
 from connection import Connection
-import re
+import re, sys
 
 class Player():
     def __init__(self, username):
@@ -36,20 +36,35 @@ class Player():
 class Game():
     def __init__(self, username):
         self.connection = Connection()
-        self.connection.connect()
         self.player = Player(username)
-    
+        self.data_player = None
     def start_game(self):
-        self.connection.send(cmd="Start", data= self.player.get_username())
+        self.connection.connect()
+        try:
+            while True:
+                cmd = input("Input command \
+                            \n1.Start\
+                            \n2.SetKewan\n\n")
+                if cmd == "Start":
+                    self.connection.send(cmd,self.player.get_username())
+                elif cmd == "SetKewan":
+                    self.connection.send(cmd)
+                    self.data_player = self.connection.data_kewan
+                    print(self.data_player)
+                    self.SetKewaN()
+                else:
+                    print("Command Tidak ditemukan!")
+                    continue
+                respond = self.connection.get_client_socket().recv(1024).decode('utf-8')
+                print(respond)
+        except KeyboardInterrupt:
+            self.client_socket.close()
+            sys.exit(0)
 
-    def set_kewan(self):
-        self.connection.send(cmd="SetKewan")
-        self.data_player = self.connection.data_kewan
-        print(self.data_player)
-
-        ascii_art_match = re.search(r"ASCII ART: (.+)", self.data_player)
-        ascii_art  = ascii_art_match.group(1)
-        
+    def SetKewaN(self):
+        # ascii_art_match = re.search(r"ASCII ART: (.+)", self.data_player)
+        # ascii_art  = ascii_art_match.group(1)
+                
         nama_kewan_match = re.search(r"Nama Kewan: (.+)", self.data_player)
         self.player.set_kewanName(nama_kewan_match.group(1))
 
