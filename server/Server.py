@@ -69,11 +69,12 @@ def server_connection():
 
     return server_socket
 
-def server_send(socket_s, msg):
-    socket_s.send(msg.encode("utf-8"))
+def server_send(socket_s: socket.socket, msg):
+    print(len(str(msg)))
+    socket_s.send(str(msg).encode("utf-8"))
 
 def server_receive(socket_r):
-    msg = socket_r.recv(1024).decode("utf-8")
+    msg = socket_r.recv(2048).decode("utf-8")
     return msg
 
 '''
@@ -124,6 +125,20 @@ def handle_client(client_socket, room: GameRoom):
     kewan_selection_format += '\n\nMasukkan nama kewan: '
 
     server_send(client_socket, kewan_selection_format)
+
+    # get kewan selection
+    kewan_selection = server_receive(client_socket)
+    print(kewan_selection)
+
+    # check kewan selection
+    while kewan_selection not in list(KEWAN_DATA.keys()):
+        server_send(client_socket, "Kewan tidak tersedia!\n\nMasukkan nama kewan: ")
+        kewan_selection = server_receive(client_socket)
+
+    # set kewan selection
+    server_send(client_socket, KEWAN_DATA[kewan_selection])
+    server_send(client_socket, KEWAN_DATA[kewan_selection])
+
 '''
     ====================
 '''
