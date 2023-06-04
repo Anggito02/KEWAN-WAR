@@ -169,7 +169,7 @@ def handle_client(client_socket, room: GameRoom):
 
         print(kewan_2_format)
         server_send(client_socket, kewan_2_format)
-    elif client_socket == room.get_first_player_sock():
+    elif client_socket == room.get_second_player_sock():
         kewan_1_name = room.get_player_kewan(room.get_first_player_sock())
         kewan_1_format = f"===== Musuhmu =====\n" \
                             f"Username: {room.get_player_username(room.get_first_player_sock())}\n" \
@@ -187,7 +187,35 @@ def handle_client(client_socket, room: GameRoom):
     server_send(client_socket, "========== BATTLE START ==========")
 
     ''' GAME START '''
+    while True:
+        # get player turn
+        sock_active, sock_inactive = room.get_turn()
 
+        # send turn message
+        server_send(sock_active, "Giliranmu!")
+        server_send(sock_inactive, "Giliran musuhmu!")
+    
+        # get player action
+        dmg_given = server_receive(sock_active)
+        print(dmg_given)
+
+        # set new kewan health status
+        room.give_damage(sock_inactive, int(dmg_given.split(',')[1]))
+
+        if room.check_health_status(sock_inactive):
+            # send game over message
+            server_send(sock_active, "Game Over! You Win!")
+            server_send(sock_inactive, "Game Over! You Lose!")
+
+            # set game over status
+            room.is_game_over = True
+            break
+        else:
+            # send new kewan status
+            server_send(sock_inactive, dmg_given)
+
+    ''' GAME OVER '''
+    print(f"Game Over!\nRoom {room.get_id()} is closed!\n")
 '''
     ====================
 '''

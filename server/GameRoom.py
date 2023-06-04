@@ -15,7 +15,7 @@ class GameRoom:
             "turn": True,
 
             "kewan_name": "",
-            "kewan_health": ""
+            "kewan_health": int
         }
 
         self.player2 = {
@@ -24,7 +24,7 @@ class GameRoom:
             "turn": False,
 
             "kewan_name": "",
-            "kewan_health": ""
+            "kewan_health": int
         }
     
     ''' ROOM CONFIGURATION '''
@@ -103,6 +103,24 @@ class GameRoom:
     ''' GAME CONFIGURATION '''
     def is_game_ready(self) -> bool:
         if self.player1['ready'] and self.player2['ready']:
+            return True
+        else:
+            return False
+        
+    def get_turn(self):
+        if self.player1['turn']:
+            return (self.players[0], self.players[1])
+        else:
+            return (self.players[1], self.players[0])
+        
+    def give_damage(self, client_socket, damage) -> None:
+        if client_socket == self.players[0]:
+            self.player2['kewan_health'] -= damage
+        else:
+            self.player1['kewan_health'] -= damage
+
+    def check_health_status(self) -> bool:
+        if self.player1['kewan_health'] <= 0 or self.player2['kewan_health'] <= 0:
             return True
         else:
             return False
