@@ -70,7 +70,6 @@ def server_connection():
     return server_socket
 
 def server_send(socket_s: socket.socket, msg):
-    print(len(str(msg)))
     socket_s.send(str(msg).encode("utf-8"))
 
 def server_receive(socket_r):
@@ -93,6 +92,9 @@ def handle_client(client_socket, room: GameRoom):
 
         # send welcome message
         server_send(client_socket, f"Welcome, {username}!")
+
+        # set username to GameRoom
+        room.set_player_username(client_socket, username)
     else:
         print("Player already exists!")
         server_send(client_socket, "Player already exists!")
@@ -102,12 +104,12 @@ def handle_client(client_socket, room: GameRoom):
     print(room.get_players())
 
     ''' ROOM WAITING '''
-    if not room.is_game_ready():
+    if not room.is_room_ready():
         print("Waiting for player...")
         server_send(client_socket, "Waiting for player...")
 
     while True:
-        if room.is_game_ready():
+        if room.is_room_ready():
             break
 
     print("Game is starting!")
@@ -135,9 +137,56 @@ def handle_client(client_socket, room: GameRoom):
         server_send(client_socket, "Kewan tidak tersedia!\n\nMasukkan nama kewan: ")
         kewan_selection = server_receive(client_socket)
 
+    # set kewan info in GameRoom
+    room.set_player_kewan(client_socket, kewan_selection)
+
     # set kewan selection
     server_send(client_socket, KEWAN_DATA[kewan_selection])
-    server_send(client_socket, KEWAN_DATA[kewan_selection])
+
+    # check player ready
+    server_receive(client_socket)
+    room.set_player_ready(client_socket)
+
+    if not room.is_game_ready():
+        print("Waiting a player for choosing")
+        server_send(client_socket, "Waiting for enemy choosing Kewan...")
+
+    while True:
+        if room.is_game_ready():
+            break
+
+    # send enemy kewan
+    if client_socket == room.get_first_player():
+        kewan_2_name = room.get_player_kewan(room.get_second_player())
+        kewan_2_format = f"===== Musuhmu =====\n" \
+                            f"Username: {room.get_player_username(room.get_second_player())}\n" \
+                            f"Kewan: {kewan_2_name}\n" \
+        
+        for lines in KEWAN_DATA[kewan_2_name]['art']:
+            kewan_2_format += lines + '\n'
+
+        kewan_2_format += '\n\n'
+
+        print(kewan_2_format)
+        server_send(client_socket, kewan_2_format)
+    elif client_socket == room.get_second_player():
+        kewan_1_name = room.get_player_kewan(room.get_first_player())
+        kewan_1_format = f"===== Musuhmu =====\n" \
+                            f"Username: {room.get_player_username(room.get_first_player())}\n" \
+                            f"Kewan: {kewan_1_name}\n" \
+        
+        for lines in KEWAN_DATA[kewan_1_name]['art']:
+            kewan_1_format += lines + '\n'
+
+        kewan_1_format += '\n\n'
+
+        print(kewan_1_format)
+        server_send(client_socket, kewan_1_format)
+
+    # send game start message
+    server_send(client_socket, "========== BATTLE START ==========")
+
+    ''' GAME START '''
 
 '''
     ====================

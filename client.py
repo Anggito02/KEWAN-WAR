@@ -40,8 +40,29 @@ class Client:
     def set_kewan(self, kewan):
         self.kewan = kewan
 
-    def get_kewan(self) -> dict:
-        return self.kewan
+    def get_kewan_name(self) -> str:
+        return str(self.kewan.keys())
+    
+    def get_kewan_health(self) -> int:
+        return int(self.kewan['health'])
+    
+    def get_kewan_defense(self):
+        return (int(self.kewan['defense']['min']), int(self.kewan['defense']['max']))
+    
+    def get_kewan_b_attack(self) -> int:
+        return (int(self.kewan['b_attack']))
+    
+    def get_kewan_skill_1(self):
+        return (self.kewan['skill-1']['name'], int(self.kewan['skill-1']['min']), int(self.kewan['skill-1']['max']))
+
+    def get_kewan_skill_2(self):
+        return (self.kewan['skill-2']['name'], int(self.kewan['skill-2']['min']), int(self.kewan['skill-2']['max']))
+    
+    def get_kewan_ulti(self):
+        return (self.kewan['ultimate']['name'], int(self.kewan['ultimate']['min']), int(self.kewan['ultimate']['max']))
+    
+    def get_kewan_art(self):
+        return self.kewan['art']
 
 if __name__ == "__main__":
     # Player Info
@@ -92,8 +113,50 @@ if __name__ == "__main__":
 
         # set kewan
         kewan_data = ast.literal_eval(kewan_data)
-        print(kewan_data)
-    
+        client.set_kewan(kewan_data)
+
+        print(f"======== {kewan} ========")
+        print()
+        for lines in client.get_kewan_art():
+            print(lines)
+        print()
+        print()
+        print(f"Health: {client.get_kewan_health()}")
+        print(f"Defense: {client.get_kewan_defense()}")
+        print()
+        print()
+        print(f"Basic Attack: {client.get_kewan_b_attack()}")
+        print(f"Skill 1: {client.get_kewan_skill_1()}")
+        print(f"Skill 2: {client.get_kewan_skill_2()}")
+        print(f"Ultimate: {client.get_kewan_ulti()}")
+        print()
+        print()
+
+        # client ready to play
+        client.client_send("ready")
+
+        # get waiting message / enemy kewan info
+        msg = client.client_receive()
+        if msg == "Waiting for enemy choosing Kewan...":
+            print(msg)
+
+            # get enemy kewan info
+            msg = client.client_receive()
+            print(msg)
+
+            # get battle start message
+            msg = client.client_receive()
+            print(msg)
+            print(f"Good luck {username}!\n\n")
+        else:
+            # print enemy kewan info
+            print(msg)
+
+            # get battle start message
+            msg = client.client_receive()
+            print(msg)
+            print(f"Good luck {username}!\n\n")
+
     except KeyboardInterrupt:
         client.client_socket.close()
         sys.exit(0)
