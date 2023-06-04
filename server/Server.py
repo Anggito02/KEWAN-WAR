@@ -101,7 +101,7 @@ def handle_client(client_socket, room: GameRoom):
     
     print("Room: ", room.get_id())
     print("Player: ")
-    print(room.get_players())
+    print(room.get_players_info())
 
     ''' ROOM WAITING '''
     if not room.is_room_ready():
@@ -156,10 +156,10 @@ def handle_client(client_socket, room: GameRoom):
             break
 
     # send enemy kewan
-    if client_socket == room.get_first_player():
-        kewan_2_name = room.get_player_kewan(room.get_second_player())
+    if client_socket == room.get_first_player_sock():
+        kewan_2_name = room.get_player_kewan(room.get_second_player_sock())
         kewan_2_format = f"===== Musuhmu =====\n" \
-                            f"Username: {room.get_player_username(room.get_second_player())}\n" \
+                            f"Username: {room.get_player_username(room.get_second_player_sock())}\n" \
                             f"Kewan: {kewan_2_name}\n" \
         
         for lines in KEWAN_DATA[kewan_2_name]['art']:
@@ -169,10 +169,10 @@ def handle_client(client_socket, room: GameRoom):
 
         print(kewan_2_format)
         server_send(client_socket, kewan_2_format)
-    elif client_socket == room.get_second_player():
-        kewan_1_name = room.get_player_kewan(room.get_first_player())
+    elif client_socket == room.get_first_player_sock():
+        kewan_1_name = room.get_player_kewan(room.get_first_player_sock())
         kewan_1_format = f"===== Musuhmu =====\n" \
-                            f"Username: {room.get_player_username(room.get_first_player())}\n" \
+                            f"Username: {room.get_player_username(room.get_first_player_sock())}\n" \
                             f"Kewan: {kewan_1_name}\n" \
         
         for lines in KEWAN_DATA[kewan_1_name]['art']:

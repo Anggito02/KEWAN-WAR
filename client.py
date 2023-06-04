@@ -15,6 +15,7 @@ class Client:
         self.username = ""
         self.kewan = {}
 
+    ''' CLIENT CONNECTION '''
     def get_client_host(self):
         return self.client_host
     
@@ -24,6 +25,7 @@ class Client:
     def connect(self):
         self.client_socket.connect(self.server_address)
 
+    ''' CLIENT COMMUNICATION '''
     def client_send(self, msg):
         self.client_socket.send(msg.encode('utf-8'))
 
@@ -31,12 +33,14 @@ class Client:
         msg = self.client_socket.recv(4096).decode('utf-8')
         return msg
     
+    ''' CLIENT INFO '''
     def set_username(self, username):
         self.username = username
 
     def get_username(self) -> str:
         return self.username
     
+    ''' KEWAN INFO '''
     def set_kewan(self, kewan):
         self.kewan = kewan
 
@@ -156,6 +160,8 @@ if __name__ == "__main__":
             msg = client.client_receive()
             print(msg)
             print(f"Good luck {username}!\n\n")
+
+        ''' GAME START '''
 
     except KeyboardInterrupt:
         client.client_socket.close()
