@@ -14,10 +14,12 @@ class Client:
         self.server_address = (SERVER_HOST, SERVER_PORT)
 
         self.username = ""
+        self.kewan_name = ""
         self.kewan = {}
 
         self.enemy_username = ""
         self.enemy_kewan_name = ""
+        self.enemy_defense = []
 
     ''' CLIENT CONNECTION '''
     def get_client_host(self):
@@ -51,8 +53,11 @@ class Client:
     def set_health(self, health):
         self.kewan['health'] = health
 
+    def set_kewan_name(self, name):
+        self.kewan_name = name
+
     def get_kewan_name(self) -> str:
-        return str(self.kewan.keys())
+        return self.kewan_name
     
     def get_kewan_health(self) -> int:
         return int(self.kewan['health'])
@@ -131,6 +136,7 @@ if __name__ == "__main__":
                 client.client_send(kewan)
                 kewan_data = client.client_receive()
             else:
+                client.set_kewan_name(kewan)
                 break
 
         # set kewan
@@ -168,6 +174,8 @@ if __name__ == "__main__":
 
             client.enemy_username = msg.split('Username: ')[1].split('\n')[0]
             client.enemy_kewan_name = msg.split('Kewan: ')[1].split('\n')[0]
+            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
+            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
 
             print(client.enemy_username, client.enemy_kewan_name)
 
@@ -175,12 +183,15 @@ if __name__ == "__main__":
             msg = client.client_receive()
             print(msg)
             print(f"Good luck {username}!\n\n")
+            client.client_send('ready')
         else:
             # print enemy kewan info
             print(msg)
 
             client.enemy_username = msg.split('Username: ')[1].split('\n')[0]
             client.enemy_kewan_name = msg.split('Kewan: ')[1].split('\n')[0]
+            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
+            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
 
             print(client.enemy_username, client.enemy_kewan_name)
 
@@ -188,10 +199,10 @@ if __name__ == "__main__":
             msg = client.client_receive()
             print(msg)
             print(f"Good luck {username}!\n\n")
+            client.client_send('ready')
 
         ''' GAME START '''
         while True:
-            # check if game is over
             msg = client.client_receive()
             if msg == "Game Over! You Win!":
                 # print kewan state
@@ -231,13 +242,12 @@ if __name__ == "__main__":
                 break
             else:
                 # get player turn
-                msg = client.client_receive()
                 if msg == "Giliranmu!":
                     print(msg)
                     print()
-    
+
                     # get player action
-                    get_action_format = f"{client.get_kewan_name()}:\n1. Basic Attack\n2. Random Skill\n\nMasukkan nomor aksi: "
+                    get_action_format = f"Serangan {client.get_kewan_name()}:\n1. Basic Attack\n2. Random Skill\n\nMasukkan nomor aksi: "
                     action = input(get_action_format)
 
                     # process action
@@ -256,11 +266,17 @@ if __name__ == "__main__":
                             skill_name = client.get_kewan_ulti()[0]
                             damage = random.randint(client.get_kewan_ulti()[1], client.get_kewan_ulti()[2])
 
+                    enemy_defense = random.randint(client.enemy_defense[0], client.enemy_defense[1])
+                    damage = damage - enemy_defense
+
+                    if damage < 0:
+                        damage = 0
+
                     # user action info
                     print(f"{client.get_kewan_name()} menggunakan {skill_name} dan memberikan damage {damage} kepada {client.enemy_username}'s {client.enemy_kewan_name}!")
 
                     # send action to server
-                    client.client_send(skill_name + "," + damage)
+                    client.client_send(skill_name + "," + str(damage))
 
                 elif msg == "Giliran musuhmu!":
                     # wait for enemy action
@@ -269,10 +285,11 @@ if __name__ == "__main__":
 
                     # get enemy damage
                     dmg_given = client.client_receive()
-                    print(f"{client.enemy_username}'s {client.enemy_kewan_name} menggunakan {dmg_given.split(',')[0]} dan memberikan damage {dmg_given.split(',')[1]} kepada {client.get_kewan_name()}!")
+                    action_name, damage_given = dmg_given.split(",")
+                    print(f"{client.enemy_username}'s {client.enemy_kewan_name} menggunakan {action_name} dan memberikan damage {damage_given} kepada {client.get_kewan_name()}!")
 
                     # set kewan health
-                    client.set_health(client.get_kewan_health() - int(dmg_given.split(',')[1]))
+                    client.set_health(client.get_kewan_health() - int(damage_given))
 
                     # print kewan new state
                     print(f"======== {client.get_kewan_name()} ========")

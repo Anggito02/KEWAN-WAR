@@ -15,7 +15,10 @@ class GameRoom:
             "turn": True,
 
             "kewan_name": "",
-            "kewan_health": int
+            "kewan_health": 999,
+
+            "action_name": "",
+            "damage_given": 0
         }
 
         self.player2 = {
@@ -24,7 +27,10 @@ class GameRoom:
             "turn": False,
 
             "kewan_name": "",
-            "kewan_health": int
+            "kewan_health": 999,
+
+            "action_name": "",
+            "damage_given": 0
         }
     
     ''' ROOM CONFIGURATION '''
@@ -82,6 +88,12 @@ class GameRoom:
         else:
             return self.player2['username']
         
+    def set_player_ready(self, client_socket) -> None:
+        if client_socket == self.players[0]:
+            self.player1['ready'] = True
+        else:
+            self.player2['ready'] = True
+        
     def set_player_kewan(self, client_socket, kewan_name) -> None:
         if client_socket == self.players[0]:
             self.player1['kewan_name'] = kewan_name
@@ -94,11 +106,17 @@ class GameRoom:
         else:
             return self.player2['kewan_name']
         
-    def set_player_ready(self, client_socket) -> None:
+    def set_player_kewan_health(self, client_socket, kewan_health) -> None:
         if client_socket == self.players[0]:
-            self.player1['ready'] = True
+            self.player1['kewan_health'] = kewan_health
         else:
-            self.player2['ready'] = True
+            self.player2['kewan_health'] = kewan_health
+
+    def get_player_kewan_health(self, client_socket) -> int:
+        if client_socket == self.players[0]:
+            return self.player1['kewan_health']
+        else:
+            return self.player2['kewan_health']
 
     ''' GAME CONFIGURATION '''
     def is_game_ready(self) -> bool:
@@ -115,9 +133,23 @@ class GameRoom:
         
     def give_damage(self, client_socket, damage) -> None:
         if client_socket == self.players[0]:
-            self.player2['kewan_health'] -= damage
+            self.player2['kewan_health'] = self.player2['kewan_health'] - int(damage)
         else:
-            self.player1['kewan_health'] -= damage
+            self.player1['kewan_health'] = self.player1['kewan_health'] - int(damage)
+
+    def set_action_damage(self, client_socket, action_name, damage) -> None:
+        if client_socket == self.players[0]:
+            self.player1['action_name'] = action_name
+            self.player1['damage_given'] = int(damage)
+        else:
+            self.player2['action_name'] = action_name
+            self.player2['damage_given'] = int(damage)
+
+    def get_action_damage(self, client_socket):
+        if client_socket == self.players[0]:
+            return (self.player2['action_name'], self.player2['damage_given'])
+        else:
+            return (self.player1['action_name'], self.player1['damage_given'])
 
     def check_health_status(self) -> bool:
         if self.player1['kewan_health'] <= 0 or self.player2['kewan_health'] <= 0:

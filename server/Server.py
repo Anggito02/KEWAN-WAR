@@ -139,6 +139,7 @@ def handle_client(client_socket, room: GameRoom):
 
     # set kewan info in GameRoom
     room.set_player_kewan(client_socket, kewan_selection)
+    room.set_player_kewan_health(client_socket, KEWAN_DATA[kewan_selection]["health"])
 
     # set kewan selection
     server_send(client_socket, KEWAN_DATA[kewan_selection])
@@ -158,9 +159,12 @@ def handle_client(client_socket, room: GameRoom):
     # send enemy kewan
     if client_socket == room.get_first_player_sock():
         kewan_2_name = room.get_player_kewan(room.get_second_player_sock())
+        kewan_2_def_min = KEWAN_DATA[kewan_2_name]["defense"]["min"]
+        kewan_2_def_max = KEWAN_DATA[kewan_2_name]["defense"]["max"]
         kewan_2_format = f"===== Musuhmu =====\n" \
                             f"Username: {room.get_player_username(room.get_second_player_sock())}\n" \
                             f"Kewan: {kewan_2_name}\n" \
+                            f"Defense: {kewan_2_def_min},{kewan_2_def_max}\n"
         
         for lines in KEWAN_DATA[kewan_2_name]['art']:
             kewan_2_format += lines + '\n'
@@ -171,9 +175,12 @@ def handle_client(client_socket, room: GameRoom):
         server_send(client_socket, kewan_2_format)
     elif client_socket == room.get_second_player_sock():
         kewan_1_name = room.get_player_kewan(room.get_first_player_sock())
+        kewan_1_def_min = KEWAN_DATA[kewan_1_name]["defense"]["min"]
+        kewan_1_def_max = KEWAN_DATA[kewan_1_name]["defense"]["max"]
         kewan_1_format = f"===== Musuhmu =====\n" \
                             f"Username: {room.get_player_username(room.get_first_player_sock())}\n" \
                             f"Kewan: {kewan_1_name}\n" \
+                            f"Defense: {kewan_1_def_min},{kewan_1_def_max}\n"
         
         for lines in KEWAN_DATA[kewan_1_name]['art']:
             kewan_1_format += lines + '\n'
@@ -185,6 +192,7 @@ def handle_client(client_socket, room: GameRoom):
 
     # send game start message
     server_send(client_socket, "========== BATTLE START ==========")
+    print(server_receive(client_socket))
 
     ''' GAME START '''
     while True:
@@ -192,17 +200,33 @@ def handle_client(client_socket, room: GameRoom):
         sock_active, sock_inactive = room.get_turn()
 
         # send turn message
-        server_send(sock_active, "Giliranmu!")
-        server_send(sock_inactive, "Giliran musuhmu!")
-    
-        # get player action
-        dmg_given = server_receive(sock_active)
-        print(dmg_given)
+        if client_socket == sock_active:
+            server_send(client_socket, "Giliranmu!")
+        elif client_socket == sock_inactive:
+            server_send(client_socket, "Giliran musuhmu!")
 
-        # set new kewan health status
-        room.give_damage(sock_inactive, int(dmg_given.split(',')[1]))
+        if client_socket == sock_active:
+            # get player action
+            dmg_msg = server_receive(sock_active)
+            action_name, damage_given = dmg_msg.split(',')
 
-        if room.check_health_status(sock_inactive):
+            # set action name and damage given
+            room.set_action_damage(sock_active, action_name, damage_given)
+
+            # set new kewan health status
+            room.give_damage(sock_inactive, damage_given)
+
+            # change turn
+            room.change_turn()
+
+        while True:
+            if room.get_turn()[0] == sock_inactive:
+                break
+
+        print(f"{room.player1['health']}")
+        print(f"{room.player2['health']}")
+        
+        if room.check_health_status():
             # send game over message
             server_send(sock_active, "Game Over! You Win!")
             server_send(sock_inactive, "Game Over! You Lose!")
@@ -211,8 +235,12 @@ def handle_client(client_socket, room: GameRoom):
             room.is_game_over = True
             break
         else:
-            # send new kewan status
-            server_send(sock_inactive, dmg_given)
+            if client_socket == sock_inactive:
+                # get action damage
+                action_name, damage_given = room.get_action_damage(sock_inactive)
+
+                # send new kewan status
+                server_send(sock_inactive, action_name + "," + str(damage_given))
 
     ''' GAME OVER '''
     print(f"Game Over!\nRoom {room.get_id()} is closed!\n")
