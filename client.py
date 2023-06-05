@@ -193,8 +193,6 @@ if __name__ == "__main__":
             client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
             client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
 
-            print(client.enemy_username, client.enemy_kewan_name)
-
             # get battle start message
             msg = client.client_receive()
             print(msg)

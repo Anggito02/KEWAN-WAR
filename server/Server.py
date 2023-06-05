@@ -130,16 +130,18 @@ def handle_client(client_socket, room: GameRoom):
 
     # get kewan selection
     kewan_selection = server_receive(client_socket)
-    print(kewan_selection)
 
     # check kewan selection
     while kewan_selection not in list(KEWAN_DATA.keys()):
         server_send(client_socket, "Kewan tidak tersedia!\n\nMasukkan nama kewan: ")
         kewan_selection = server_receive(client_socket)
 
-    # set kewan info in GameRoom
+        # set kewan info in GameRoom
     room.set_player_kewan(client_socket, kewan_selection)
     room.set_player_kewan_health(client_socket, KEWAN_DATA[kewan_selection]["health"])
+
+    print(room.player1['kewan_name'], room.player1['kewan_health'])
+    print(room.player2['kewan_name'], room.player2['kewan_health'])
 
     # set kewan selection
     server_send(client_socket, KEWAN_DATA[kewan_selection])
@@ -214,7 +216,7 @@ def handle_client(client_socket, room: GameRoom):
             room.set_action_damage(sock_active, action_name, damage_given)
 
             # set new kewan health status
-            room.give_damage(sock_inactive, damage_given)
+            room.give_damage(sock_active, damage_given)
 
             # change turn
             room.change_turn()
@@ -223,8 +225,8 @@ def handle_client(client_socket, room: GameRoom):
             if room.get_turn()[0] == sock_inactive:
                 break
 
-        print(f"{room.player1['kewan_health']}")
-        print(f"{room.player2['kewan_health']}")
+        print(room.player1['kewan_name'], room.player1['kewan_health'])
+        print(room.player2['kewan_name'], room.player2['kewan_health'])
         
         if room.check_health_status():
             # send game over message

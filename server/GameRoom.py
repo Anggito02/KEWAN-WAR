@@ -131,7 +131,7 @@ class GameRoom:
         else:
             return (self.players[1], self.players[0])
         
-    def give_damage(self, client_socket, damage) -> None:
+    def give_damage(self, client_socket, damage) -> str:
         if client_socket == self.players[0]:
             self.player2['kewan_health'] = self.player2['kewan_health'] - int(damage)
         else:
