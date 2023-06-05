@@ -223,8 +223,8 @@ def handle_client(client_socket, room: GameRoom):
             if room.get_turn()[0] == sock_inactive:
                 break
 
-        print(f"{room.player1['health']}")
-        print(f"{room.player2['health']}")
+        print(f"{room.player1['kewan_health']}")
+        print(f"{room.player2['kewan_health']}")
         
         if room.check_health_status():
             # send game over message
