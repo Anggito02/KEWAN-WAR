@@ -2,8 +2,8 @@
     "Trippi": {
         "health": 300,
         "defense": {
-            "min": 10,
-            "max": 20
+            "min": 20,
+            "max": 30
         },
 
         "b_attack": 10,
@@ -43,7 +43,7 @@
             "min": 20,
             "max": 30
         },
-        "b_attack": 40,
+        "b_attack": 30,
         "skill-1": {
             "name": "NINJU",
             "min": 10,
@@ -156,7 +156,7 @@
             "max": 30
         },
 
-        "b_attack": 20,
+        "b_attack": 25,
         "skill-1": {
             "name": "NYAKAR",
             "min": 30,
