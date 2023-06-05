@@ -84,6 +84,7 @@ class Client:
     def set_enemy(self, enemy):
         self.enemy_username = enemy[0]
         self.enemy_kewan_name = enemy[1]
+        self.enemy_defense = enemy[2]
 
     def get_enemy_username(self) -> str:
         return self.enemy_username
@@ -103,6 +104,7 @@ if __name__ == "__main__":
     try:
         # send username info
         client.client_send(username)
+        client.set_username(username)
 
         # get welcome message
         msg = client.client_receive()
@@ -172,12 +174,13 @@ if __name__ == "__main__":
             msg = client.client_receive()
             print(msg)
 
-            client.enemy_username = msg.split('Username: ')[1].split('\n')[0]
-            client.enemy_kewan_name = msg.split('Kewan: ')[1].split('\n')[0]
-            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
-            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
+            enemy_username = msg.split('Username: ')[1].split('\n')[0]
+            enemy_kewan_name = msg.split('Kewan: ')[1].split('\n')[0]
+            enemy_defense = []
+            enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
+            enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
 
-            print(client.enemy_username, client.enemy_kewan_name)
+            client.set_enemy((enemy_username, enemy_kewan_name, enemy_defense))
 
             # get battle start message
             msg = client.client_receive()
@@ -188,10 +191,13 @@ if __name__ == "__main__":
             # print enemy kewan info
             print(msg)
 
-            client.enemy_username = msg.split('Username: ')[1].split('\n')[0]
-            client.enemy_kewan_name = msg.split('Kewan: ')[1].split('\n')[0]
-            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
-            client.enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
+            enemy_username = msg.split('Username: ')[1].split('\n')[0]
+            enemy_kewan_name = msg.split('Kewan: ')[1].split('\n')[0]
+            enemy_defense = []
+            enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[0]))
+            enemy_defense.append(int(msg.split('Defense: ')[1].split('\n')[0].split(',')[1]))
+
+            client.set_enemy((enemy_username, enemy_kewan_name, enemy_defense))
 
             # get battle start message
             msg = client.client_receive()
@@ -215,27 +221,7 @@ if __name__ == "__main__":
                 print()
 
                 print(f"{msg}\n{client.get_kewan_name()}'s {client.get_username()} berhasil mengalahkan {client.get_enemy_kewan_name()}!")
-                print(f"{client.get_username()} berhasil memenangkan pertarungan melawan {client.get_enemy_username}!\n")
-                print(f"======== Terimakasih telah bermain! ========\n")
-                break
-            elif msg == "Game Over! You Lose!":
-                # set health to 0
-                client.set_health(0)
-
-                # print kewan state
-                print(f"======== {client.get_kewan_name()} ========")
-                print()
-                for lines in client.get_kewan_art():
-                    print(lines)
-                print()
-                print()
-                print(f"Health: {client.get_kewan_health()}")
-                print()
-                print()
-
-                print(f"{msg}\n{client.get_kewan_name()}'s {client.get_username()} gagal mengalahkan {client.get_enemy_kewan_name()}!")
-                print(f"{client.get_username()} gagal memenangkan pertarungan melawan {client.get_enemy_username}!\n")
-                print("Coba lagi lain kali! Semangat!\n")
+                print(f"{client.get_username()} berhasil memenangkan pertarungan melawan {client.get_enemy_username()}!\n")
                 print(f"======== Terimakasih telah bermain! ========\n")
                 break
             else:
@@ -281,23 +267,45 @@ if __name__ == "__main__":
                     print(msg)
                     print()
 
-                    # get enemy damage
-                    dmg_given = client.client_receive()
-                    action_name, damage_given = dmg_given.split(",")
-                    print(f"{client.enemy_username}'s {client.enemy_kewan_name} menggunakan {action_name} dan memberikan damage {damage_given} kepada {client.get_kewan_name()}!")
+                    # get enemy damage / game end
+                    msg = client.client_receive()
+                    if msg != "Game Over! You Lose!":
+                        dmg_given = msg
+                        action_name, damage_given = dmg_given.split(",")
+                        print(f"{client.enemy_username}'s {client.enemy_kewan_name} menggunakan {action_name} dan memberikan damage {damage_given} kepada {client.get_kewan_name()}!")
 
-                    # set kewan health
-                    client.set_health(client.get_kewan_health() - int(damage_given))
+                        # set kewan health
+                        client.set_health(client.get_kewan_health() - int(damage_given))
 
-                    # print kewan new state
-                    print(f"======== {client.get_kewan_name()} ========")
-                    print()
-                    for lines in client.get_kewan_art():
-                        print(lines)
-                    print()
-                    print()
-                    print(f"Health: {client.get_kewan_health()}")
-                    print()
+                        # print kewan new state
+                        print(f"======== {client.get_kewan_name()} ========")
+                        print()
+                        for lines in client.get_kewan_art():
+                            print(lines)
+                        print()
+                        print()
+                        print(f"Health: {client.get_kewan_health()}")
+                        print()
+                    else:
+                        # set health to 0
+                        client.set_health(0)
+
+                        # print kewan state
+                        print(f"======== {client.get_kewan_name()} ========")
+                        print()
+                        for lines in client.get_kewan_art():
+                            print(lines)
+                        print()
+                        print()
+                        print(f"Health: {client.get_kewan_health()}")
+                        print()
+                        print()
+
+                        print(f"{msg}\n{client.get_kewan_name()}'s {client.get_username()} gagal mengalahkan {client.get_enemy_kewan_name()}!")
+                        print(f"{client.get_username()} gagal memenangkan pertarungan melawan {client.get_enemy_username()}!\n")
+                        print("Coba lagi lain kali! Semangat!\n")
+                        print(f"======== Terimakasih telah bermain! ========\n")
+                        break
 
     except KeyboardInterrupt:
         client.client_socket.close()
