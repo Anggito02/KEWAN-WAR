@@ -39,7 +39,7 @@ Selamat Bermain
 Untuk Hosting sebagai Server, hubungkan satu laptop ke jaringan internet yang tidak memiliki banyak pengakses, contohnya seperti hotspot hp. 
 
 <p align="center">
-  <img src="img/hotspot.png">
+  <img src="img/hotspot.jpg">
 </p>
 
 Setelah itu, atur konfigurasi IP pada server melalui **server.conf**, kita bisa mendapatkan IP dengan menggunakan command *ipconfig*.
@@ -49,7 +49,7 @@ Setelah itu, atur konfigurasi IP pada server melalui **server.conf**, kita bisa 
 </p>
 
 <p align="center">
-  <img src="img/serverconf.jpg">
+  <img src="img/serverconf.png">
 </p>
 
 Setelah server telah ter set-up, kita siapkan 2 laptop berbeda agar menjadi client atau player pada permainan. Kita harus menyamakan IP pada client sama dengan IP pada server agar dapat bermain di dalam satu room. Setelah semua client terset-up, kita bisa memainkan game tersebut di laptop masing-masing. Selamat Bermain!!
