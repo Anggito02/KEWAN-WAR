@@ -98,7 +98,7 @@ if __name__ == "__main__":
     while username == "":
         username = input("Masukkan username: ")
 
-    client = Client('127.0.0.1', 12345)
+    client = Client('192.168.62.112', 12345)
     client.connect()
 
     try:
