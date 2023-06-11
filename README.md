@@ -39,13 +39,13 @@ Selamat Bermain
 Untuk Hosting sebagai Server, hubungkan satu laptop ke jaringan internet yang tidak memiliki banyak pengakses, contohnya seperti hotspot hp. 
 
 <p align="center">
-  <img src="img/hotspot.jpg">
+  <img src="img/hotspot.png">
 </p>
 
 Setelah itu, atur konfigurasi IP pada server melalui **server.conf**, kita bisa mendapatkan IP dengan menggunakan command *ipconfig*.
 
 <p align="center">
-  <img src="img/ipconfig.jpg">
+  <img src="img/ipconfig.png">
 </p>
 
 <p align="center">
