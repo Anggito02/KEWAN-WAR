@@ -120,9 +120,13 @@ def handle_client(client_socket, room: GameRoom):
     kewan_selection_format = f"Pilih Kewanmu!\n"
 
     iter = 1
+    enum = 0
     for kewan in list(KEWAN_DATA.keys()):
         kewan_selection_format += str(iter) + ". " + kewan + '\n'
         iter = iter + 1
+        enum = enum + 1
+        if enum == len(list(KEWAN_DATA.keys()))-1:
+            break
 
     kewan_selection_format += '\n\nMasukkan nama kewan: '
 
@@ -231,7 +235,7 @@ def handle_client(client_socket, room: GameRoom):
         if room.check_health_status():
             # send game over message
             server_send(sock_active, "Game Over! You Win!")
-            server_send(sock_inactive, "Game Over! You Lose!")
+            server_send(sock_inactive, "Game Over! You Lose!" + "," + action_name + "," + str(damage_given))
 
             # set game over status
             room.is_game_over = True
