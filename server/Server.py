@@ -95,9 +95,6 @@ def handle_client(client_socket, room: GameRoom):
 
         # set username to GameRoom
         room.set_player_username(client_socket, username)
-    else:
-        print("Player already exists!")
-        server_send(client_socket, "Player already exists!")
     
     print("Room: ", room.get_id())
     print("Player: ")

@@ -99,15 +99,13 @@ if __name__ == "__main__":
         username = input("Masukkan username: ")
 
     # Client Connection
-    # CONFIG_FILE = os.path.join(BASE_DIR, 'connection.conf')
+    CONFIG_FILE = os.path.join(BASE_DIR, 'connection.conf')
 
-    # with(open(CONFIG_FILE, 'r')) as f:
-    #     SERVER_HOST = f.readline().split("=")[1].strip()
-    #     SERVER_PORT = int(f.readline().split("=")[1].strip())
-    HOST= '192.168.62.112'
-    PORT= 12345
+    with(open(CONFIG_FILE, 'r')) as f:
+        SERVER_HOST = f.readline().split("=")[1].strip()
+        SERVER_PORT = int(f.readline().split("=")[1].strip())
 
-    client = Client(HOST, PORT)
+    client = Client(SERVER_HOST, SERVER_PORT)
     client.connect()
 
     try:
