@@ -99,13 +99,15 @@ if __name__ == "__main__":
         username = input("Masukkan username: ")
 
     # Client Connection
-    CONFIG_FILE = os.path.join(BASE_DIR, 'connection.conf')
+    # CONFIG_FILE = os.path.join(BASE_DIR, 'connection.conf')
 
-    with(open(CONFIG_FILE, 'r')) as f:
-        SERVER_HOST = f.readline().split("=")[1].strip()
-        SERVER_PORT = int(f.readline().split("=")[1].strip())
+    # with(open(CONFIG_FILE, 'r')) as f:
+    #     SERVER_HOST = f.readline().split("=")[1].strip()
+    #     SERVER_PORT = int(f.readline().split("=")[1].strip())
+    HOST= '192.168.62.112'
+    PORT= 12345
 
-    client = Client(SERVER_HOST, SERVER_PORT)
+    client = Client(HOST, PORT)
     client.connect()
 
     try:
@@ -128,8 +130,9 @@ if __name__ == "__main__":
             print("You are player I")
 
         # get game start message
-        elif msg == "======== Game is starting! ========\n":
+        elif msg == "======== Game is starting! ========":
             print(msg)
+            print()
             print("You are player II")
 
         # get list kewan
@@ -233,6 +236,12 @@ if __name__ == "__main__":
                 print(f"{msg}\n{client.get_kewan_name()}'s {client.get_username()} berhasil mengalahkan {client.get_enemy_kewan_name()}!")
                 print(f"{client.get_username()} berhasil memenangkan pertarungan melawan {client.get_enemy_username()}!\n")
                 print(f"======== Terimakasih telah bermain! ========\n")
+                quit = ""
+                while(True):
+                    quit = input("Please type 'y' or 'YES' to quit: ")
+                    if quit == 'y' or quit == 'YES':
+                        break
+                
                 break
             else:
                 # get player turn
@@ -308,6 +317,11 @@ if __name__ == "__main__":
                         print(f"{client.get_username()} gagal memenangkan pertarungan melawan {client.get_enemy_username()}!\n")
                         print("Coba lagi lain kali! Semangat!\n")
                         print(f"======== Terimakasih telah bermain! ========\n")
+                        quit = ""
+                        while(True):
+                            quit = input("Please type 'y' or 'YES' to quit: ")
+                            if quit == 'y' or quit == 'YES':
+                                break
                         break
                     else:
                         dmg_given = msg

@@ -113,7 +113,7 @@ def handle_client(client_socket, room: GameRoom):
             break
 
     print("Game is starting!")
-    server_send(client_socket, "======== Game is starting! ========\n")
+    server_send(client_socket, "======== Game is starting! ========")
 
     ''' KEWAN SELECTION '''
     # send kewan selection
@@ -144,8 +144,6 @@ def handle_client(client_socket, room: GameRoom):
     room.set_player_kewan(client_socket, kewan_selection)
     room.set_player_kewan_health(client_socket, KEWAN_DATA[kewan_selection]["health"])
 
-    print(room.player1['kewan_name'], room.player1['kewan_health'])
-    print(room.player2['kewan_name'], room.player2['kewan_health'])
 
     # set kewan selection
     server_send(client_socket, KEWAN_DATA[kewan_selection])
@@ -177,7 +175,6 @@ def handle_client(client_socket, room: GameRoom):
 
         kewan_2_format += '\n\n'
 
-        print(kewan_2_format)
         server_send(client_socket, kewan_2_format)
     elif client_socket == room.get_second_player_sock():
         kewan_1_name = room.get_player_kewan(room.get_first_player_sock())
@@ -193,7 +190,6 @@ def handle_client(client_socket, room: GameRoom):
 
         kewan_1_format += '\n\n'
 
-        print(kewan_1_format)
         server_send(client_socket, kewan_1_format)
 
     # send game start message
@@ -229,8 +225,6 @@ def handle_client(client_socket, room: GameRoom):
             if room.get_turn()[0] == sock_inactive:
                 break
 
-        print(room.player1['kewan_name'], room.player1['kewan_health'])
-        print(room.player2['kewan_name'], room.player2['kewan_health'])
         
         if room.check_health_status():
             # send game over message
